@@ -50,7 +50,7 @@ function App() {
         setError("Your API Key seems to be invalid. Please select a valid key to continue.");
     }
 
-    const handleGenerate = async (prompt: string, aspectRatio: AspectRatio, resolution: Resolution, videoEffect: string) => {
+    const handleGenerate = async (prompt: string, aspectRatio: AspectRatio, resolution: Resolution, videoEffect: string, model: string) => {
         setIsLoading(true);
         setError(null);
         setVideoUrl(null);
@@ -61,7 +61,7 @@ function App() {
         const finalPrompt = videoEffect !== 'none' ? `${prompt}, ${videoEffect}` : prompt;
 
         try {
-            const resultOperation = await generateInitialVideo(finalPrompt, aspectRatio, resolution, setLoadingMessage, LOADING_MESSAGES);
+            const resultOperation = await generateInitialVideo(finalPrompt, aspectRatio, resolution, model, setLoadingMessage, LOADING_MESSAGES);
             const downloadLink = resultOperation.response?.generatedVideos?.[0]?.video?.uri;
             if (downloadLink && process.env.API_KEY) {
                 setVideoUrl(`${downloadLink}&key=${process.env.API_KEY}`);

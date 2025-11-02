@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Loader } from './Loader';
 import { VideoPlayer } from './VideoPlayer';
 import { AspectRatio, Resolution } from '../types';
+import { GENERATION_MODELS } from '../constants';
 
 interface VideoGeneratorProps {
     isLoading: boolean;
     loadingMessage: string;
     videoUrl: string | null;
     error: string | null;
-    onGenerate: (prompt: string, aspectRatio: AspectRatio, resolution: Resolution, videoEffect: string) => void;
+    onGenerate: (prompt: string, aspectRatio: AspectRatio, resolution: Resolution, videoEffect: string, model: string) => void;
     onExtend: (prompt: string, duration: number) => void;
     onStartOver: () => void;
     aspectRatio: AspectRatio;
@@ -55,6 +56,7 @@ export const VideoGenerator: React.FC<VideoGeneratorProps> = ({
     const [selectedAspectRatio, setSelectedAspectRatio] = useState<AspectRatio>('16:9');
     const [selectedResolution, setSelectedResolution] = useState<Resolution>('720p');
     const [selectedEffect, setSelectedEffect] = useState<string>('none');
+    const [selectedModel, setSelectedModel] = useState<string>(GENERATION_MODELS[0].value);
     const [isDownloading, setIsDownloading] = useState(false);
     const [downloadError, setDownloadError] = useState<string | null>(null);
     const [isLinkCopied, setIsLinkCopied] = useState(false);
@@ -62,7 +64,7 @@ export const VideoGenerator: React.FC<VideoGeneratorProps> = ({
     const handleGenerateClick = (e: React.FormEvent) => {
         e.preventDefault();
         if (prompt.trim() && !isLoading) {
-            onGenerate(prompt, selectedAspectRatio, selectedResolution, selectedEffect);
+            onGenerate(prompt, selectedAspectRatio, selectedResolution, selectedEffect, selectedModel);
         }
     };
 
@@ -81,6 +83,7 @@ export const VideoGenerator: React.FC<VideoGeneratorProps> = ({
         setSelectedResolution('720p');
         setExtensionDuration(7);
         setSelectedEffect('none');
+        setSelectedModel(GENERATION_MODELS[0].value);
         onStartOver();
     };
 
@@ -296,6 +299,22 @@ export const VideoGenerator: React.FC<VideoGeneratorProps> = ({
                                 ))}
                             </select>
                         </div>
+                        
+                        <div>
+                            <label className="block text-sm font-medium mb-2 text-brand-text-secondary">Generation Model</label>
+                            <div className="flex gap-2">
+                                {GENERATION_MODELS.map(model => (
+                                     <button 
+                                        key={model.value}
+                                        type="button" 
+                                        onClick={() => setSelectedModel(model.value)} 
+                                        className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-colors ${selectedModel === model.value ? 'bg-brand-primary text-white' : 'bg-brand-bg hover:bg-brand-outline'}`}>
+                                        {model.label}
+                                     </button>
+                                ))}
+                            </div>
+                        </div>
+
 
                         <button
                             type="submit"

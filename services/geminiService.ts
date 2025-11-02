@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { AspectRatio, VeoOperation, Resolution } from '../types';
-import { INITIAL_GENERATION_MODEL, EXTENSION_MODEL } from '../constants';
+import { EXTENSION_MODEL } from '../constants';
 
 // A custom error class to signal API key issues specifically.
 export class ApiKeyError extends Error {
@@ -58,6 +58,7 @@ export const generateInitialVideo = async (
     prompt: string,
     aspectRatio: AspectRatio,
     resolution: Resolution,
+    model: string,
     onProgress: (message: string) => void,
     loadingMessages: string[]
 ): Promise<VeoOperation> => {
@@ -66,7 +67,7 @@ export const generateInitialVideo = async (
 
     try {
         initialOperation = await ai.models.generateVideos({
-            model: INITIAL_GENERATION_MODEL,
+            model: model,
             prompt,
             config: {
                 numberOfVideos: 1,

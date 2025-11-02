@@ -1,5 +1,8 @@
+export const GENERATION_MODELS = [
+    { value: 'veo-3.1-fast-generate-preview', label: 'Fast' },
+    { value: 'veo-3.1-generate-preview', label: 'High Quality' },
+];
 
-export const INITIAL_GENERATION_MODEL = 'veo-3.1-fast-generate-preview';
 export const EXTENSION_MODEL = 'veo-3.1-generate-preview';
 
 export const LOADING_MESSAGES = [
