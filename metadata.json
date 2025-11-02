@@ -1,0 +1,5 @@
+{
+  "name": "Veo Video Creator",
+  "description": "An application to generate and extend videos using text prompts with Google's Veo model. Features selectable aspect ratios and a modern, mobile-first interface.",
+  "requestFramePermissions": []
+}
