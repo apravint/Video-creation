@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, GenerateVideosOperation } from "@google/genai";
 import { AspectRatio, VeoOperation, Resolution } from '../types';
 import { EXTENSION_MODEL } from '../constants';
 
@@ -13,12 +13,12 @@ export class ApiKeyError extends Error {
 const POLLING_INTERVAL_MS = 10000;
 
 async function pollForVideo(
-    operationName: string,
+    operation: GenerateVideosOperation,
     onProgress: (message: string) => void,
     loadingMessages: string[]
 ): Promise<VeoOperation> {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    let currentOperation: VeoOperation;
+    let currentOperation = operation;
     let messageIndex = 0;
 
     const progressInterval = setInterval(() => {
@@ -33,8 +33,8 @@ async function pollForVideo(
             await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL_MS));
             
             try {
-                // FIX: The parameter for getVideosOperation should be 'operation', not 'name'.
-                currentOperation = await ai.operations.getVideosOperation({ operation: operationName });
+                // getVideosOperation needs the operation object (it reads `.name`), not just the name.
+                currentOperation = await ai.operations.getVideosOperation({ operation: currentOperation });
             } catch (error: any) {
                  if (error.message && error.message.includes("Requested entity was not found.")) {
                     throw new ApiKeyError("API Key is invalid or not found. Please select a valid API key.");
@@ -50,7 +50,7 @@ async function pollForVideo(
         clearInterval(progressInterval);
     }
     
-    return currentOperation;
+    return currentOperation as unknown as VeoOperation;
 }
 
 
@@ -63,7 +63,7 @@ export const generateInitialVideo = async (
     loadingMessages: string[]
 ): Promise<VeoOperation> => {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    let initialOperation: VeoOperation;
+    let initialOperation: GenerateVideosOperation;
 
     try {
         initialOperation = await ai.models.generateVideos({
@@ -82,7 +82,7 @@ export const generateInitialVideo = async (
         throw error;
     }
     
-    return pollForVideo(initialOperation.name, onProgress, loadingMessages);
+    return pollForVideo(initialOperation, onProgress, loadingMessages);
 };
 
 export const extendVideo = async (
@@ -99,7 +99,7 @@ export const extendVideo = async (
         throw new Error("No previous video found to extend.");
     }
     
-    let extensionOperation: VeoOperation;
+    let extensionOperation: GenerateVideosOperation;
 
     try {
         extensionOperation = await ai.models.generateVideos({
@@ -120,5 +120,5 @@ export const extendVideo = async (
         throw error;
     }
 
-    return pollForVideo(extensionOperation.name, onProgress, loadingMessages);
+    return pollForVideo(extensionOperation, onProgress, loadingMessages);
 };
